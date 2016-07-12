@@ -1,16 +1,23 @@
 package com.feicui.TreasureMap.user.register;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.feicui.TreasureMap.MainActivity;
 import com.feicui.TreasureMap.R;
 import com.feicui.TreasureMap.commons.ActivityUtils;
 import com.feicui.TreasureMap.commons.RegexUtils;
+import com.feicui.TreasureMap.home.HomeActivity;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -25,6 +32,7 @@ public class RegisterActivity extends AppCompatActivity implements RegisterView{
     @Bind(R.id.et_Password) EditText etPassword;
     @Bind(R.id.et_Confirm) EditText etConfirm;
     @Bind(R.id.btn_Register) Button btnRegister;
+    @Bind(R.id.toolbar)Toolbar toolbar;
 
     private String username; // 用来保存编辑框内的用户名
     private String password; // 用来保存编辑框内的密码
@@ -44,6 +52,23 @@ public class RegisterActivity extends AppCompatActivity implements RegisterView{
         etConfirm.addTextChangedListener(mTextWatcher); // EditText监听
         etPassword.addTextChangedListener(mTextWatcher); // EditText监听
         etUsername.addTextChangedListener(mTextWatcher); // EditText监听
+        // 用toolbar来更换以前的actionBar
+        setSupportActionBar(toolbar);
+        // 激活Home(左上角,内部使用的选项菜单处理的),设置其title
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(getTitle());
+        }
+    }
+    //选项菜单处理,返回键的监听
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private final TextWatcher mTextWatcher = new TextWatcher() {
@@ -81,20 +106,34 @@ public class RegisterActivity extends AppCompatActivity implements RegisterView{
         // 执行注册业务逻辑
         new RegisterPresenter(this).regiser();
     }
-
+    private ProgressDialog progressDialog;
     @Override public void navigateToHome() {
-
+        activityUtils.startActivity(HomeActivity.class);
+        // 关闭当前页面
+        finish();
+        // 关闭入口Main页面 (发送一个广播出去,是本地广播)
+        Intent intent = new Intent(MainActivity.ACTION_ENTER_HOME);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     @Override public void showProgress() {
-
+        activityUtils.hideSoftKeyboard();
+        progressDialog = ProgressDialog.show(this,"","注册中,请稍后...");
     }
 
     @Override public void hideProgress() {
-
+        if(progressDialog != null){
+            progressDialog.dismiss();
+        }
     }
 
     @Override public void showMessage(String msg) {
+        activityUtils.showToast(msg);
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ButterKnife.unbind(this);
     }
 }

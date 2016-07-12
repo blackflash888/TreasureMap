@@ -1,16 +1,15 @@
 package com.feicui.TreasureMap.user.login;
 
 /**
- * Created by Administrator on 16-7-12.
+ * 登陆业务相关视图
  */
 public interface LoginView {
-
-    //显示进度条
-    void showProgressBar();
-    //隐藏进度条
-    void hideProgressBar();
-    //显示信息
+    /** 显示登陆中的Loading视图 */
+    void showProgress();
+    /** 隐藏登陆中的Loading视图*/
+    void hideProgress();
+    /** 显示信息*/
     void showMessage(String msg);
-    //跳转到主界面
+    /** 导航到Home页面*/
     void navigateToHome();
 }

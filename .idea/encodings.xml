@@ -3,6 +3,8 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/feicui/TreasureMap/TreasureAppplication.java" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/feicui/TreasureMap/commons" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/feicui/TreasureMap/home" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/feicui/TreasureMap/home/HomeActivity.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/feicui/TreasureMap/user" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/feicui/TreasureMap/user/login" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/feicui/TreasureMap/user/register" charset="UTF-8" />

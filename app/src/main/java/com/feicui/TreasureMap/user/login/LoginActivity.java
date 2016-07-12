@@ -1,7 +1,8 @@
 package com.feicui.TreasureMap.user.login;
 
-import android.support.v7.app.AppCompatActivity;
+import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -11,19 +12,30 @@ import android.widget.EditText;
 import com.feicui.TreasureMap.R;
 import com.feicui.TreasureMap.commons.ActivityUtils;
 import com.feicui.TreasureMap.commons.RegexUtils;
+import com.feicui.TreasureMap.home.HomeActivity;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class LoginActivity extends AppCompatActivity implements LoginView{
+/**
+ * 登陆视图, 纯种视图
+ * <p/>
+ * 我们的登陆业务， 是不是只要针对LoginView来做就行了
+ */
+public class LoginActivity extends AppCompatActivity implements LoginView {
+
+    @Bind(R.id.et_Password)
+    EditText etPassword;
+    @Bind(R.id.et_Username)
+    EditText etUsername;
+    @Bind(R.id.btn_Login)
+    Button btnLogin;
+
+    private String userName; // 用来存储用户名
+    private String passWord; // 用来存储密码
 
     private ActivityUtils activityUtils;
-    private String userName,userPassword;
-
-    @Bind(R.id.et_Password) EditText etPassword;
-    @Bind(R.id.et_Username) EditText etUsername;
-    @Bind(R.id.btn_Login) Button btnLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,48 +66,54 @@ public class LoginActivity extends AppCompatActivity implements LoginView{
         @Override
         public void afterTextChanged(Editable s) {
             userName = etUsername.getText().toString();
-            userPassword = etPassword.getText().toString();
-            boolean canLogin = !(TextUtils.isEmpty(userName) || TextUtils.isEmpty(userPassword));
+            passWord = etPassword.getText().toString();
+            boolean canLogin = !(TextUtils.isEmpty(userName) || TextUtils.isEmpty(passWord));
             // 默认情况下Login按钮是未激活，不可点的
             btnLogin.setEnabled(canLogin);
         }
     };
 
     @OnClick(R.id.btn_Login)
-    public void login(){
+    public void login() {
         // 用户名是否有效
         if (RegexUtils.verifyUsername(userName) != RegexUtils.VERIFY_SUCCESS) {
             activityUtils.showToast(R.string.username_rules);
             return;
         }
         // 密码是否有效
-        if (RegexUtils.verifyPassword(userPassword) != RegexUtils.VERIFY_SUCCESS) {
+        if (RegexUtils.verifyPassword(passWord) != RegexUtils.VERIFY_SUCCESS) {
             activityUtils.showToast(R.string.password_rules);
             return;
         }
-        //执行业务
+        // 执行业务
         new LoginPresenter(this).login();
     }
 
+    private ProgressDialog progressDialog;
 
     @Override
-    public void showProgressBar() {
-
+    public void showProgress() {
+        activityUtils.hideSoftKeyboard();
+        progressDialog = ProgressDialog.show(this, "", "登陆中,请稍后...");
     }
 
     @Override
-    public void hideProgressBar() {
-
+    public void hideProgress() {
+        //让进度条消失
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        }
     }
 
     @Override
     public void showMessage(String msg) {
-
+        activityUtils.showToast(msg);
     }
 
     @Override
     public void navigateToHome() {
-
+        //跳转到主界面
+        activityUtils.startActivity(HomeActivity.class);
     }
 
     @Override
@@ -103,5 +121,4 @@ public class LoginActivity extends AppCompatActivity implements LoginView{
         super.onDestroy();
         ButterKnife.unbind(this);
     }
-
 }

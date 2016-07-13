@@ -3,6 +3,7 @@ package com.feicui.TreasureMap.user.register;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,7 +18,9 @@ import com.feicui.TreasureMap.MainActivity;
 import com.feicui.TreasureMap.R;
 import com.feicui.TreasureMap.commons.ActivityUtils;
 import com.feicui.TreasureMap.commons.RegexUtils;
+import com.feicui.TreasureMap.components.AlertDialogFragment;
 import com.feicui.TreasureMap.home.HomeActivity;
+import com.hannesdorfmann.mosby.mvp.MvpActivity;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -26,7 +29,7 @@ import butterknife.OnClick;
 /**
  * 注册视图
  */
-public class RegisterActivity extends AppCompatActivity implements RegisterView{
+public class RegisterActivity extends MvpActivity<RegisterView,RegisterPresenter> implements RegisterView{
 
     @Bind(R.id.et_Username) EditText etUsername;
     @Bind(R.id.et_Password) EditText etPassword;
@@ -60,6 +63,13 @@ public class RegisterActivity extends AppCompatActivity implements RegisterView{
             getSupportActionBar().setTitle(getTitle());
         }
     }
+
+    @NonNull
+    @Override
+    public RegisterPresenter createPresenter() {
+        return new RegisterPresenter();
+    }
+
     //选项菜单处理,返回键的监听
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -95,17 +105,32 @@ public class RegisterActivity extends AppCompatActivity implements RegisterView{
     public void register() {
         // 正则进行判断输入的用户名是否有效
         if (RegexUtils.verifyUsername(username) != RegexUtils.VERIFY_SUCCESS) {
-            activityUtils.showToast(R.string.username_rules);
+            showUsernameError();
             return;
         }
         // 正则进行判断输入的密码是否有效
         if (RegexUtils.verifyPassword(password) != RegexUtils.VERIFY_SUCCESS) {
-            activityUtils.showToast(R.string.username_rules);
+            showPasswordError();
             return;
         }
         // 执行注册业务逻辑
-        new RegisterPresenter(this).regiser();
+        getPresenter().regiser();
     }
+
+    // 用户名输入错误Dialog
+    private void showUsernameError(){
+        String msg = getString(R.string.username_rules);
+        AlertDialogFragment fragment = AlertDialogFragment.newInstance(R.string.username_error, msg);
+        fragment.show(getSupportFragmentManager(), "showUsernameError");
+    }
+
+    // 密码输入错误Dialog
+    private void showPasswordError(){
+        String msg = getString(R.string.password_rules);
+        AlertDialogFragment fragment = AlertDialogFragment.newInstance(R.string.password_error, msg);
+        fragment.show(getSupportFragmentManager(), "showPasswordError");
+    }
+
     private ProgressDialog progressDialog;
     @Override public void navigateToHome() {
         activityUtils.startActivity(HomeActivity.class);

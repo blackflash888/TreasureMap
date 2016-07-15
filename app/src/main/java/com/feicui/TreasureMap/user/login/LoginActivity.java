@@ -29,7 +29,6 @@ import butterknife.OnClick;
 
 /**
  * 登陆视图, 纯种视图
- * <p/>
  * 我们的登陆业务， 是不是只要针对LoginView来做就行了
  */
 public class LoginActivity extends MvpActivity<LoginView,LoginPresenter> implements LoginView {

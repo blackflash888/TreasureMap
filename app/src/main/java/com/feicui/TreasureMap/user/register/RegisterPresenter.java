@@ -2,46 +2,60 @@ package com.feicui.TreasureMap.user.register;
 
 import android.os.AsyncTask;
 
+import com.feicui.TreasureMap.net.NetClient;
+import com.feicui.TreasureMap.user.UserApi;
+import com.feicui.TreasureMap.user.UserInfo;
 import com.hannesdorfmann.mosby.mvp.MvpNullObjectBasePresenter;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by Administrator on 2016/7/12 0012.
- *
- * 注册相关业务, 怎么和视图结合 ????
- *
- *
+ * 注册相关业务
  */
 public class RegisterPresenter extends MvpNullObjectBasePresenter<RegisterView> {
+
+    private Call<RegisterInfo> registerCall;
+
     /** 本类核心业务*/
-    public void regiser(){
-        new RegisterTask().execute();
-    }
-    private final class RegisterTask extends AsyncTask<Void,Void,Integer> {
-        // 在doInBackground之前,UI线程来调用
-        @Override protected void onPreExecute() {
-            super.onPreExecute();
-            getView().showProgress();
-        }
-        // 在onPreExecute之后, 后台线程来调用
-        @Override protected Integer doInBackground(Void... params) {
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                return 0;
-            }
-            return 1;
-        }
-        // 在doInBackground之后,UI线程来调用
-        @Override protected void onPostExecute(Integer aVoid) {
-            super.onPostExecute(aVoid);
-            if (aVoid == 0) {
-                getView().showMessage("未知错误");
-                getView().hideProgress();
-                return;
-            }
-            getView().navigateToHome();
-            getView().hideProgress();
-        }
+    public void regiser(UserInfo userInfo){
+        UserApi userApi = NetClient.getInstance().getUserApi();
+        registerCall = userApi.register(userInfo);
+        registerCall.enqueue(callback);
     }
 
+    private Callback<RegisterInfo> callback = new Callback<RegisterInfo>() {
+        @Override
+        public void onResponse(Call<RegisterInfo> call, Response<RegisterInfo> response) {
+            getView().hideProgress();
+            // 成功得到响应 (200 - 299)
+            if (response != null && response.isSuccessful()) {
+                final RegisterInfo Info = response.body();
+                if (Info == null) {
+                    getView().showMessage("unknown error");
+                    return;
+                }
+                // 注册成功
+                if (Info.getCode() == 1) {
+                    getView().navigateToHome();
+                    return;
+                }
+                getView().showMessage(Info.getMsg());
+            }
+        }
+        @Override
+        public void onFailure(Call<RegisterInfo> call, Throwable t) {
+            getView().hideProgress();
+            getView().showMessage(t.getMessage());
+        }
+    };
+
+    @Override public void detachView(boolean retainInstance) {
+        super.detachView(retainInstance);
+        if (registerCall != null) {
+            registerCall.cancel();
+        }
+    }
 }

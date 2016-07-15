@@ -20,6 +20,7 @@ import com.feicui.TreasureMap.commons.ActivityUtils;
 import com.feicui.TreasureMap.commons.RegexUtils;
 import com.feicui.TreasureMap.components.AlertDialogFragment;
 import com.feicui.TreasureMap.home.HomeActivity;
+import com.feicui.TreasureMap.user.UserInfo;
 import com.hannesdorfmann.mosby.mvp.MvpActivity;
 
 import butterknife.Bind;
@@ -114,7 +115,7 @@ public class RegisterActivity extends MvpActivity<RegisterView,RegisterPresenter
             return;
         }
         // 执行注册业务逻辑
-        getPresenter().regiser();
+        getPresenter().regiser(new UserInfo(username,password));
     }
 
     // 用户名输入错误Dialog

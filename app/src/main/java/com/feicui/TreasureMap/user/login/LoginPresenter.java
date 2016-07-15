@@ -1,99 +1,67 @@
 package com.feicui.TreasureMap.user.login;
 
-import android.os.AsyncTask;
 
 import com.feicui.TreasureMap.net.NetClient;
+import com.feicui.TreasureMap.user.UserApi;
 import com.feicui.TreasureMap.user.UserInfo;
-import com.google.gson.Gson;
+import com.feicui.TreasureMap.user.UserPrefs;
 import com.hannesdorfmann.mosby.mvp.MvpNullObjectBasePresenter;
-import com.hannesdorfmann.mosby.mvp.MvpPresenter;
 
-import java.io.IOException;
-
-import okhttp3.Call;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import retrofit2.Call;
+import retrofit2.Callback;
 
 /**
  * Created by Administrator on 2016/7/12 0012.
- *
  * 登陆视图业务
  */
 public class LoginPresenter extends MvpNullObjectBasePresenter<LoginView> {
 
-    private UserInfo userInfo;
-    private Gson gson;
-    private Call call;
+    private Call<LoginInfo> loginCall;
 
-    /** 本类核心业务*/
-    public void login(UserInfo userInfo){
-        this.userInfo = userInfo;
-        gson = new Gson();
-        new LoginTask().execute();
+    /**
+     * 本类核心业务
+     */
+    public void login(UserInfo userInfo) {
+        UserApi userApi = NetClient.getInstance().getUserApi();
+        if (loginCall != null) loginCall.cancel();
+        // 执行登陆请求构建出call模型
+        loginCall = userApi.login(userInfo);
+        // Call模型异步执行
+        loginCall.enqueue(callback);
     }
 
-    private final class LoginTask extends AsyncTask<Void,Void,LoginInfo>{
-        // 在doInBackground之前,UI线程来调用
-        @Override protected void onPreExecute() {
-            super.onPreExecute();
-            getView().showProgress();
-        }
-        // 在onPreExecute之后, 后台线程来调用
-        @Override protected LoginInfo doInBackground(Void... params) {
-            OkHttpClient okHttpClient = NetClient.getInstance().getClient();
-            String content = gson.toJson(userInfo);
-            MediaType mediaType = MediaType.parse("treasuremap/json");
-            // 请求体
-            RequestBody body = RequestBody.create(mediaType, content);
-            //请求
-            Request request = new Request.Builder()
-                    .url("http://admin.syfeicuiedu.com/Handler/UserHandler.ashx?action=login")
-                    .post(body)
-                    .build();
-            if (call != null) call.cancel();
-            call = okHttpClient.newCall(request);
-            try {
-                // 执行（同步）得到响应
-                Response response = call.execute();
-                if(response == null){
-                    return null;
-                }
-                if (response.isSuccessful()){
-                    // 取出响应体中的数据
-                    String strResult = response.body().string();
-                    LoginInfo loginInfo = gson.fromJson(strResult, LoginInfo.class);
-                    return loginInfo;
-                }
-            } catch (IOException e) {
-                return null;
-            }
-
-            return null;
-        }
-        // 在doInBackground之后,UI线程来调用
-        @Override protected void onPostExecute(LoginInfo loginInfo) {
-            super.onPostExecute(loginInfo);
+    private Callback<LoginInfo> callback = new Callback<LoginInfo>() {
+        @Override public void onResponse(Call<LoginInfo> call, retrofit2.Response<LoginInfo> response) {
             getView().hideProgress();
-            if (loginInfo == null){
-                getView().showMessage("登录异常");
+            // 是否成功
+            if (response.isSuccessful()) {
+                LoginInfo Info = response.body();
+                if (Info == null) {
+                    getView().showMessage("unknown error");
+                    return;
+                }
+                getView().showMessage(Info.getMsg());
+                // 登陆成功
+                if (Info.getCode() == 1) {
+                    UserPrefs.getInstance().setPhoto(NetClient.BASE_URL + Info.getIconUrl());
+                    UserPrefs.getInstance().setTokenid(Info.getTokenId());
+                    getView().navigateToHome();
+                }
                 return;
             }
-            getView().showMessage(loginInfo.getMsg());
-            //登录成功
-            if (loginInfo.getCode() == 1){
-                ///登录成功进入到主页面
-                getView().navigateToHome();
-            }
         }
-    }
+
+        @Override public void onFailure(Call<LoginInfo> call, Throwable throwable) {
+            getView().hideProgress();
+            getView().showMessage(throwable.getMessage());
+        }
+    };
+
     @Override
     public void detachView(boolean retainInstance) {
         super.detachView(retainInstance);
-        if (call != null){
-            call.cancel();
+        if (loginCall != null){
+            loginCall.cancel();
         }
     }
 }

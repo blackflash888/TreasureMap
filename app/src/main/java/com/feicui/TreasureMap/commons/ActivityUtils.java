@@ -58,7 +58,8 @@ public class ActivityUtils {
 
     public void startActivity(Class<? extends Activity> clazz){
         Activity activity = getActivity();
-        if (activity == null) return;
+        if (activity == null)
+            return;
         Intent intent = new Intent(activity, clazz);
         activity.startActivity(intent);
     }

@@ -24,7 +24,12 @@
     </android.support.v7.widget.Toolbar>
 
     <!--地图视图宝藏-->
-
+    <com.baidu.mapapi.map.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:layout_below="@id/toolbar"/>
 
     <!--列表视图宝藏-->
 

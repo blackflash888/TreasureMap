@@ -11,7 +11,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 
 /**
- * Created by Administrator on 2016/7/12 0012.
  * 登陆视图业务
  */
 public class LoginPresenter extends MvpNullObjectBasePresenter<LoginView> {
@@ -22,6 +21,7 @@ public class LoginPresenter extends MvpNullObjectBasePresenter<LoginView> {
      * 本类核心业务
      */
     public void login(UserInfo userInfo) {
+        getView().showProgress();
         UserApi userApi = NetClient.getInstance().getUserApi();
         if (loginCall != null) loginCall.cancel();
         // 执行登陆请求构建出call模型

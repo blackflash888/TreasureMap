@@ -1,11 +1,12 @@
 package com.feicui.TreasureMap.home;
 
-import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.ImageView;
 
 import com.feicui.TreasureMap.R;
 import com.feicui.TreasureMap.commons.ActivityUtils;
+import com.feicui.TreasureMap.home.map.MapFragment;
 import com.feicui.TreasureMap.user.UserPrefs;
 import com.feicui.TreasureMap.user.account.AccountActivity;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -22,22 +24,25 @@ import butterknife.ButterKnife;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    @Bind(R.id.toolbar)
-    Toolbar toolbar;
-    @Bind(R.id.drawer_layout)
-    DrawerLayout drawerLayout;
-    @Bind(R.id.nav_view)
-    NavigationView navigationView;
+    @Bind(R.id.toolbar) Toolbar toolbar;
+    @Bind(R.id.drawer_layout) DrawerLayout drawerLayout;
+    @Bind(R.id.nav_view) NavigationView navigationView;
 
     private ActivityUtils activityUtils;
 
     private ImageView imageView;
+
+    private FragmentManager fragmentManager;
+    private MapFragment mapFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activityUtils = new ActivityUtils(this);
         setContentView(R.layout.activity_home);
+        fragmentManager = getSupportFragmentManager();
+        mapFragment = (MapFragment) fragmentManager.findFragmentById(R.id.mapFragment);
+        TreasureRepo.getInstance().clear();
     }
 
     @Override protected void onStart() {
@@ -75,7 +80,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     @Override public boolean onNavigationItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_hide: // 埋藏宝藏
-                activityUtils.showToast(R.string.hide_treasure);
+                drawerLayout.closeDrawer(GravityCompat.START);
+                mapFragment.hideTreasure();
                 break;
         }
         // 返回true,当前选项变为checked状态
@@ -83,11 +89,15 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override public void onBackPressed() {
-        // 是不是打开的(左)
+        // DrawerLayout是开的
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
-            return;
         }
-        super.onBackPressed();
+        // DrawerLayout是关的
+        else{
+            if (mapFragment.onBackPressed()) {
+                super.onBackPressed();
+            }
+        }
     }
 }

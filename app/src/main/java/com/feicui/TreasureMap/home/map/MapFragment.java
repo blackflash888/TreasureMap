@@ -60,6 +60,7 @@ import com.feicui.TreasureMap.home.Area;
 public class MapFragment extends MvpFragment<MapMvpView, MapPresenter> implements MapMvpView {
 
     private ActivityUtils activityUtils;
+    private static String myAddress;
 
     @Nullable
     @Override
@@ -97,9 +98,14 @@ public class MapFragment extends MvpFragment<MapMvpView, MapPresenter> implement
                 .overlook(0)
                 .build();
         BaiduMapOptions baiduMapOptions = new BaiduMapOptions()
-                .mapStatus(mapStatus)//地图相关状态
-                .overlookingGesturesEnabled(false) // 俯仰关闭
-                .zoomControlsEnabled(false);//缩放是否激活
+                .mapStatus(mapStatus) // 地图相关状态
+                .compassEnabled(true) // 指南针
+                .zoomGesturesEnabled(true) // 设置是否允许缩放手势
+                .rotateGesturesEnabled(true) // 设置是否允许旋转手势，默认允许
+                .scrollGesturesEnabled(true) // 设置是否允许拖拽手势，默认允许
+                .scaleControlEnabled(false) // 设置是否显示比例尺控件
+                .overlookingGesturesEnabled(false) // 设置是否允许俯视手势，默认允许
+                .zoomControlsEnabled(false); // 设置是否显示缩放控件
         //地图视图
         mapView = new MapView(getActivity(), baiduMapOptions);
         //拿到当前MapView的控制器
@@ -161,9 +167,9 @@ public class MapFragment extends MvpFragment<MapMvpView, MapPresenter> implement
         @Override public void onGetReverseGeoCodeResult(ReverseGeoCodeResult reverseGeoCodeResult) {
             if (reverseGeoCodeResult == null) return;
             if (reverseGeoCodeResult.error == SearchResult.ERRORNO.NO_ERROR) {
-                address = "未知";
+//                address = "未知";
+                address = reverseGeoCodeResult.getAddress();
             }
-            address = reverseGeoCodeResult.getAddress();
             tvCurrentLication.setText(address);
         }
     };
@@ -177,6 +183,9 @@ public class MapFragment extends MvpFragment<MapMvpView, MapPresenter> implement
 
     public static LatLng getMyLocation() {
         return myLocation;
+    }
+    public static String getMyAddress() {
+        return myAddress;
     }
 
     private final BitmapDescriptor dot = BitmapDescriptorFactory.fromResource(R.drawable.treasure_dot);
@@ -405,6 +414,7 @@ public class MapFragment extends MvpFragment<MapMvpView, MapPresenter> implement
             activityUtils.showToast(R.string.please_input_title);
             return;
         }
+        //埋藏完成后让输入框消失
         hideTreasure.setVisibility(View.INVISIBLE);
         // 进入埋藏宝藏页面
         LatLng latLng = baiduMap.getMapStatus().target;
@@ -465,7 +475,7 @@ public class MapFragment extends MvpFragment<MapMvpView, MapPresenter> implement
                         hideTreasure.setVisibility(View.VISIBLE);// 显示宝藏录入信息卡片
                         treasureView.setVisibility(View.GONE);// 隐藏宝藏信息卡片
                         // 下方的layout做一个动画
-                        YoYo.with(Techniques.FlipInX).duration(500).playOn(bottomLayout);
+//                        YoYo.with(Techniques.FlipInX).duration(500).playOn(bottomLayout);
                     }
                 });
                 break;

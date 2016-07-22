@@ -1,5 +1,8 @@
 package com.feicui.TreasureMap.home;
 
+import com.feicui.TreasureMap.home.hide.HideTreasure;
+import com.feicui.TreasureMap.home.hide.HideTreasureResult;
+
 import java.util.List;
 
 import retrofit2.Call;
@@ -14,4 +17,6 @@ public interface TreasureApi {
 
     @POST("/Handler/TreasureHandler.ashx?action=show")
     Call<List<Treasure>> getTreasureInArea(@Body Area body);
+    @POST("/Handler/TreasureHandler.ashx?action=hide")
+    Call<HideTreasureResult> hideTreasure(@Body HideTreasure hideTreasure);
 }

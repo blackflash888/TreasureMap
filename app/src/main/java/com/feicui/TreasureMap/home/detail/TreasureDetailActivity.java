@@ -170,6 +170,18 @@ public class TreasureDetailActivity extends MvpActivity<TreasureDetailView, Trea
     }
 
     /**
+     * 启动百度地图导航(Web)
+     */
+    public void startWebNavi(LatLng startPt, String startAdr, LatLng endPt, String endAdr) {
+        // 构建 导航参数
+        NaviParaOption para = new NaviParaOption()
+                .startPoint(startPt).endPoint(endPt)
+                .startName(startAdr).endName(endAdr);
+
+        BaiduMapNavigation.openWebBaiduMapNavi(para, this);
+    }
+
+    /**
      * 启动百度地图步行导航(Native)
      */
     public void startWalkingNavi(LatLng startPt, String startAdr, LatLng endPt, String endAdr) {
@@ -177,11 +189,17 @@ public class TreasureDetailActivity extends MvpActivity<TreasureDetailView, Trea
         NaviParaOption para = new NaviParaOption()
                 .startPoint(startPt).endPoint(endPt)
                 .startName(startAdr).endName(endAdr);
-        try {
-            BaiduMapNavigation.openBaiduMapWalkNavi(para, this);
-        } catch (BaiduMapAppNotSupportNaviException e) {
-            e.printStackTrace();
-            showDialog();
+//        try {
+//            BaiduMapNavigation.openBaiduMapWalkNavi(para, this);
+//        } catch (BaiduMapAppNotSupportNaviException e) {
+//            e.printStackTrace();
+//            showDialog();
+//        }
+        if (!BaiduMapNavigation.openBaiduMapWalkNavi(para, this)) {
+            //启动网页版地图
+            startWebNavi(startPt, startAdr, endPt, endAdr);
+            //直接显示对话框
+//            showDialog();
         }
     }
 
@@ -189,15 +207,17 @@ public class TreasureDetailActivity extends MvpActivity<TreasureDetailView, Trea
      * 启动百度地图骑行导航(Native)
      */
     public void startBikingNavi(LatLng startPt, String startAdr, LatLng endPt, String endAdr) {
-        // 构建 导航参数
-        NaviParaOption para = new NaviParaOption()
+        NaviParaOption option = new NaviParaOption()
                 .startPoint(startPt).endPoint(endPt)
                 .startName(startAdr).endName(endAdr);
 
-        try {
-            BaiduMapNavigation.openBaiduMapBikeNavi(para, this);
-        } catch (BaiduMapAppNotSupportNaviException e) {
-            e.printStackTrace();
+//        try {
+//            BaiduMapNavigation.openBaiduMapBikeNavi(para, this);
+//        } catch (BaiduMapAppNotSupportNaviException e) {
+//            e.printStackTrace();
+//            showDialog();
+//        }
+        if (!BaiduMapNavigation.openBaiduMapBikeNavi(option, this)) {
             showDialog();
         }
     }
@@ -211,10 +231,13 @@ public class TreasureDetailActivity extends MvpActivity<TreasureDetailView, Trea
                 .startName(startAddress)
                 .endPoint(endLatlng)
                 .endName(endAddress);
-        try {
-            BaiduMapNavigation.openBaiduMapNavi(option, this);
-        } catch (Exception e) {
-            e.printStackTrace();
+//        try {
+//            BaiduMapNavigation.openBaiduMapNavi(option, this);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            showDialog();
+//        }
+        if (!BaiduMapNavigation.openBaiduMapBikeNavi(option, this)) {
             showDialog();
         }
     }

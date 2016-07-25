@@ -10,10 +10,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-/**
- * 作者：yuanchao on 2016/7/21 0021 14:11
- * 邮箱：yuanchao@feicuiedu.com
- */
 public class TreasureDetailPresenter extends MvpNullObjectBasePresenter<TreasureDetailView> {
 
     private Call<List<TreasureDetailResult>> detailCall;

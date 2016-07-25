@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">寻宝</string>
+    <string name="app_name">地图寻宝</string>
     <string name="register">注册</string>
     <string name="login">登录</string>
     <string name="account">我的账号</string>

@@ -18,8 +18,6 @@ import butterknife.ButterKnife;
 
 /**
  * 宝藏卡片视图
- * 作者：yuanchao on 2016/7/19 0019 16:11
- * 邮箱：yuanchao@feicuiedu.com
  */
 public class TreasureView extends RelativeLayout{
 
